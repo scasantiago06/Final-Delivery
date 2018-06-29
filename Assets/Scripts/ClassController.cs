@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using NPC.Enemy;                                                                                    //Para utilizar la clase "Zombie" utilizo la directiva donde se encuentra esta.
 using NPC.Ally;                                                                                     //Para utilizar la clase "Citizen" utilizo la directiva donde se encuentra esta.
 
-/*************************************************************************************************************************Clase ClassController**********************************************************************************************************************/
+/*************************************************************************************************************************Clase ClassController*************************************************************************************************************************/
 public class ClassController : MonoBehaviour
 {
     int numberOfCubes;                                                                              //Creo una variable de tipo "int" que se encargará del número de cubos que se creen.                                                                
@@ -19,12 +19,14 @@ public class ClassController : MonoBehaviour
     public static Text zo;                                                                                 //Creo una variable a la cual añadir el texto del zombie.
     public static Text ci;                                                                                 //Creo una variable a la cual añadir el texto del ciudadano.
 
-    /************************************************************************************************************************Funcion "Start"************************************************************************************************************************/
-    private void Awake()
+    /*************************************************************************************************************************Funcion "Awake"***************************************************************************************************************************/
+    void Awake()
     {
         zo = GameObject.FindGameObjectWithTag("ZombieText").GetComponent<Text>();
         ci = GameObject.FindGameObjectWithTag("CitizenText").GetComponent<Text>();
     }
+
+    /*************************************************************************************************************************Función "Start"***************************************************************************************************************************/
     public void Start()
     {
         //projectile = GameObject.FindGameObjectWithTag("Projectile").GetComponent<Rigidbody>();

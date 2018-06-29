@@ -10,7 +10,7 @@ using UnityEditor;
 /****************************************************************************************************************************Clase Hero*****************************************************************************************************************************/
 public class Hero : MonoBehaviour                                                                                                                       //La clase del héroe.
 {
-    public static HeroStruct heroStruct_H;                                                                                                                            //Creo una variable de tipo "HeroStruct" que es la estructura del héroe.
+    public static HeroStruct heroStruct_H;                                                                                                              //Creo una variable de tipo "HeroStruct" que es la estructura del héroe.
     ZombieStruct zombieStruct_H;                                                                                                                        //Creo una variable de tipo "ZombieStruct" que es la estructura del zombie.
     CitizenStruct citizenStruct_H;                                                                                                                      //Creo una variable de tipo "CitizenStruct" que es la estructura del ciudadano.
     NpcStruct npcStruct_H;                                                                                                                              //Creo una variable de tipo "NpcStruct" que es la estructura del npc.
@@ -37,6 +37,7 @@ public class Hero : MonoBehaviour                                               
         }
     }
 
+    /***********************************************************************************************************************Funcion "Update"***********************************************************************************************************************/
     void Update()
     {
         foreach (GameObject zo in ClassController.zombieList)
@@ -67,12 +68,13 @@ public class Hero : MonoBehaviour                                               
         GameOver();
     }
 
-    private void Awake()
+    /************************************************************************************************************************Funcion "Awake"***************************************************************************************************************************/
+    void Awake()
     {
         heroStruct_H.health = GameObject.FindGameObjectWithTag("Health").GetComponent<Slider>();
     }
 
-    /************************************************************************************************************************Funcion "Start"************************************************************************************************************************/
+    /************************************************************************************************************************Funcion "Start"***************************************************************************************************************************/
     void Start()
     {
         S_Hero speedHero = new S_Hero();                                                                                                                    //Instancio la clase "S_Hero".
@@ -103,6 +105,7 @@ public class Hero : MonoBehaviour                                               
         heroStruct_H.dialogue.enabled = false;                                                                                                          //Y luego que desactive el texto.
     }
 
+    /*******************************************************************************************************************Corrutina "ActiveObjects"**********************************************************************************************************************/
     IEnumerator ActiveObjects()
     {
         yield return new WaitForSeconds(10f);
@@ -118,6 +121,7 @@ public class Hero : MonoBehaviour                                               
         }
     }
 
+    /*********************************************************************************************************************Función "GunInstance"************************************************************************************************************************/
     void GunInstance()
     {
         heroStruct_H.gun = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -130,6 +134,7 @@ public class Hero : MonoBehaviour                                               
         heroStruct_H.countProjectiles = 15;
     }
 
+    /*****************************************************************************************************************Función "AmmunitionAndHealth"********************************************************************************************************************/
     void AmmunitionAndHealth()
     {
         ammunition = Instantiate(Resources.Load("Ammunition", typeof(GameObject)) as GameObject);
@@ -138,7 +143,8 @@ public class Hero : MonoBehaviour                                               
         health.transform.position = new Vector3(Random.Range(0, 30), 0.5f, Random.Range(0, 30));
     }
 
-    private void OnTriggerEnter(Collider other)
+    /*******************************************************************************************************************Función "OnTriggerEnter"***********************************************************************************************************************/
+    void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.CompareTag("Ammunition"))
         {
@@ -158,14 +164,17 @@ public class Hero : MonoBehaviour                                               
         }
     }
 
+    /**********************************************************************************************************************Función "GameOver"**************************************************************************************************************************/
     void GameOver()
     {
         if(heroStruct_H.health.value == 0)
         {
-            heroStruct_H.cam.transform.SetParent(null);                                                 /*RRRRRRRROOOOOOOOOTTTTTTAAAAACCCCIIIIIOOOONNNNN*/
+            heroStruct_H.cam.transform.SetParent(null);                                                 
             ClassController.citizenList.Remove(gameObject);
-            heroStruct_H.cam.transform.position = new Vector3(0, 50, 0);
-            heroStruct_H.cam.transform.rotation = new Quaternion(0, 0, 0, 0);
+            Destroy(heroStruct_H.cam.GetComponent<FPSAim>());
+            heroStruct_H.cam.transform.position = new Vector3(0, 90, 0);
+            Quaternion rot = Quaternion.Euler(90, 0, 0);
+            heroStruct_H.cam.transform.rotation = rot;
             heroStruct_H.dialogue.text = " ";
             Destroy(gameObject);
         }
