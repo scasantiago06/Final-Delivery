@@ -10,6 +10,7 @@ public class ClassController : MonoBehaviour
 {
     int numberOfCubes;                                                                              //Creo una variable de tipo "int" que se encargará del número de cubos que se creen.                                                                
     int randomComponent;                                                                            //Creo una variable de tipo "int" que se encargará luego de, según el número, agregar un componente.
+    int randomZombie;
     const int MAXCUBES = 25;                                                                        //Creo una variable constante de tipo "int" que será el valor máximo de cubos que se podrán crear y no se puede editar una vez comience el juego.
     public static List<GameObject> zombieList = new List<GameObject>();                  
     public static List<GameObject> citizenList = new List<GameObject>();
@@ -45,7 +46,12 @@ public class ClassController : MonoBehaviour
             {
                 go.AddComponent<Zombie>();                                                          //Al cubo "go" que se acabó de crear se le agrega el componente llamado "Zombie" que es una clase dentro de la directiva "NPC.Enemy".
                 go.AddComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;     //Al cubo "go" que se acabó de crear se le agrega el componente llamado "RigidBody" y le doy verdadero a la rotación para que no se de la vuelta.
-                zombieList.Add(go);                              
+                zombieList.Add(go);
+                randomZombie = Random.Range(0, 2);
+                if(randomZombie == 1)
+                {
+                    go.transform.localScale = new Vector3(1, 2, 1);
+                }
             }
             else if (randomComponent == 2)                                                          //Cuando el valor almacenado en "randomComponent" sea igual a 2, entrará en este condicional.
             {
@@ -60,10 +66,13 @@ public class ClassController : MonoBehaviour
         //////
         foreach (GameObject z in zombieList)                                                        //Creo un "foreach" y entre paréntesis digo: para cada objeto "gos" (Nombre que le dí a dichos objetos) en la lista hacer:
         {
-           zo.text = "Number of zombies: " + (numberZombies += 1);                                 //El texto de "zo" cambia por lo que esta después del igual.
+            if (z.GetComponent<Zombie>())
+            { 
+                zo.text = "Number of zombies: " + (numberZombies += 1);                                 //El texto de "zo" cambia por lo que esta después del igual.
+            }
         }
 
-        foreach (GameObject c in citizenList)
+            foreach (GameObject c in citizenList)
         {
             ci.text = "Number of citizens: " + (numberCitizens += 1);
         }

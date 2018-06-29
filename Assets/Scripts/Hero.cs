@@ -59,7 +59,10 @@ public class Hero : MonoBehaviour                                               
             clone = Instantiate(Resources.Load("Projectile", typeof(GameObject)) as GameObject, heroStruct_H.gun.transform.position, transform.localRotation);
             clone.GetComponent<Rigidbody>().velocity = heroStruct_H.gun.transform.TransformDirection(Vector3.forward * 70);
             heroStruct_H.countProjectiles--;
+            Destroy(clone, 0.5f);
         }
+
+        GameOver();
     }
 
     private void Awake()
@@ -104,10 +107,21 @@ public class Hero : MonoBehaviour                                               
         heroStruct_H.gun.name = "Gun";
         heroStruct_H.gun.transform.position = new Vector3(transform.position.x + 0.7f, transform.position.y, transform.position.z + 0.5f);
         heroStruct_H.gun.GetComponent<Renderer>().material.color = Color.blue;
-        heroStruct_H.gun.transform.localScale = new Vector4(0.3f, 0.3f, 1f, 0);
+        heroStruct_H.gun.transform.localScale = new Vector3(0.3f, 0.3f, 1f);
         heroStruct_H.gun.transform.SetParent(gameObject.transform);
-        heroStruct_H.gun.transform.localRotation = Quaternion.identity;
         heroStruct_H.countProjectiles = 15;
+    }
+
+    void GameOver()
+    {
+        if(heroStruct_H.health.value == 0)
+        {
+            heroStruct_H.cam.transform.SetParent(null);                                                 /*RRRRRRRROOOOOOOOOTTTTTTAAAAACCCCIIIIIOOOONNNNN*/
+            ClassController.citizenList.Remove(gameObject);
+            heroStruct_H.cam.transform.position = new Vector3(0, 50, -150);
+            heroStruct_H.dialogue.text = "";
+            Destroy(gameObject);
+        }
     }
 }
 

@@ -20,10 +20,13 @@ public class FPSAim : MonoBehaviour                                     //La cla
     /*************************************************************************************************************************Función "Update"***********************************************************************************************************************************/
     void Update()                                                       //En la "Update" debo verificar constantemente la posición del mouse.
     {
-        mouseX += Input.GetAxis("Mouse X");                             //En la variable "mouseX" guardo la posición en "x".
-        mouseY -= Input.GetAxis("Mouse Y");                             //En la variable "mouseY" guardo la posicion en "y".
-        mouseY = Mathf.Clamp(mouseY, mx, yx);                           //Con "Mathf.Clamp" limito con las variables máximas creadas.
-        transform.eulerAngles = new Vector3(mouseY, mouseX, 0);         //Con esta línea muevo la cámara.
-        body.transform.eulerAngles = new Vector3(0, mouseX, 0);         //"body" rota con respecto a la cámara solo en "y".
+        if(body != null)
+        { 
+            mouseX += Input.GetAxis("Mouse X");                             //En la variable "mouseX" guardo la posición en "x".
+            mouseY -= Input.GetAxis("Mouse Y");                             //En la variable "mouseY" guardo la posicion en "y".
+            mouseY = Mathf.Clamp(mouseY, mx, yx);                           //Con "Mathf.Clamp" limito con las variables máximas creadas.
+            transform.eulerAngles = new Vector3(mouseY, mouseX, 0);         //Con esta línea muevo la cámara.
+            body.transform.eulerAngles = new Vector3(0, mouseX, 0);         //"body" rota con respecto a la cámara solo en "y".
+        }
     }
 }

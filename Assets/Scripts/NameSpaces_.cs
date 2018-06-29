@@ -13,7 +13,7 @@ namespace NPC                                                                   
         public ZombieStruct zombieStruct_N;                                                                     //Creo una variable del tipo de la estructura "ZombieStruct" y la llamo igual, simplemente que en minúsculas y luego del guión bajo, la letra de la clase a la que corresponde.
         public CitizenStruct citizenStruct_N;                                                                   //Creo una variable de tipo de la estructura "CitizenStruct" para poder acceder a una copia de estructura.
         public NpcStruct npcStruct_N;                                                                           //Creo una variable de tipo de la estructura "NpcStruct" para poder acceder a una copia de ella.
-        WaitForSeconds timeBehaviourChange = new WaitForSeconds(3);                                             //Inicializo la variable "timeBehaviourChage" y va a ser igual a un tiempo de espera de 3 segundos.
+        public WaitForSeconds timeBehaviourChange = new WaitForSeconds(3);                                             //Inicializo la variable "timeBehaviourChage" y va a ser igual a un tiempo de espera de 3 segundos.
         /**********************************************************************************************************************Función "_Start"*********************************************************************************************************************************/
         public void Awake()                                                                                     //Creo una función que se encarga de hacer lo que se debe hacer en la funcion "Start" de Unity, para luego llamar esta función en las otras clases desde su propio "Start" para no se sobrescriba la una a la otra.
         {
@@ -81,7 +81,7 @@ namespace NPC                                                                   
             {
                 npcStruct_N.distances = Vector3.Distance(gameObject.transform.position, cit.transform.position);
 
-                if (npcStruct_N.distances < 5 && npcStruct_N.distances > 1.0f)
+                if (npcStruct_N.distances < 5 && npcStruct_N.distances > 1.5f)
                 {
                     if (cit.GetComponent<Citizen>() || cit.GetComponent<Hero>())
                     {
@@ -121,11 +121,13 @@ namespace NPC                                                                   
         {
             float distanceZ_H;
             GameObject hero;
+            bool activateDamage = true;
+            Vector3 BigZombie;
             //ClassController classController;
             /***********************************************************************************************************************Funcion "Start"********************************************************************************************************************************/
             void Start()
             {
-                //classController = GameObject.FindGameObjectWithTag("Player").GetComponent<ClassController>();
+                BigZombie = new Vector3(1, 2, 1);
                 gameObject.name = "Zombie";                                                                     //Al objeto que tenga este script se le dará el nombre de "Zombie".
                 gameObject.tag = "Zombie";                                                                      //Al objeto que tenga este script se le dará el tag de "Zombie".
                 zombieStruct_N.randomColor = Random.Range(0, 3);                                                //Inicializo la variable "randomColor" que está dentro de la estructura y va a ser igual a un número aleatorio entre 0 y 2 realmente.
@@ -134,15 +136,39 @@ namespace NPC                                                                   
                 hero = GameObject.FindGameObjectWithTag("Player");
             }
 
-            /***********************************************************************************************************************Funcion "Update"*******************************************************************************************************************************/
             void Update()
             {
                 Movement();
-                distanceZ_H = Vector3.Distance(gameObject.transform.position, hero.transform.position);
-                if(distanceZ_H < 1.5f)
+                CheckDistance();
+            }
+
+            /***********************************************************************************************************************Funcion "Update"*******************************************************************************************************************************/
+            void CheckDistance()
+            {
+                if(hero != null)
+                { 
+                    distanceZ_H = Vector3.Distance(gameObject.transform.position, hero.transform.position);
+                    if(activateDamage == true && distanceZ_H <= 1.5f)
+                    {
+                        activateDamage = false;
+                        StartCoroutine("Damage");
+                    }
+                }
+            }
+
+            IEnumerator Damage()
+            {
+                npcStruct_N.npcBehaviour = NpcBehaviour.Running;
+                if(transform.localScale == BigZombie)
+                {
+                    Hero.heroStruct_H.health.value -= 30;
+                }
+                else
                 {
                     Hero.heroStruct_H.health.value -= 10;
                 }
+                yield return timeBehaviourChange;
+                activateDamage = true;
             }
 
             /********************************************************************************************************************Funcion "ChangeColor"****************************************************************************************************************************/
@@ -168,11 +194,8 @@ namespace NPC                                                                   
                 {
 
                 }
-            }
 
-            private void OnTriggerEnter(Collider other)
-            {
-                if (other.gameObject.CompareTag("Projectile"))
+                if (collision.gameObject.CompareTag("Projectile"))
                 {
                     ClassController.zombieList.Remove(gameObject);
                     ClassController.numberZombies -= 1;
