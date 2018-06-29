@@ -192,7 +192,14 @@ namespace NPC                                                                   
             {
                 if (collision.gameObject.GetComponent<Citizen>())
                 {
-
+                    Citizen c = collision.gameObject.GetComponent<Citizen>();
+                    Zombie z = c;
+                    ClassController.zombieList.Add(collision.gameObject);
+                    ClassController.citizenList.Remove(collision.gameObject);
+                    ClassController.numberZombies += 1;
+                    ClassController.numberCitizens -= 1;
+                    ClassController.zo.text = "Number of Zombies: " + ClassController.numberZombies;
+                    ClassController.ci.text = "Number of Citizens: " + ClassController.numberCitizens;
                 }
 
                 if (collision.gameObject.CompareTag("Projectile"))
@@ -254,6 +261,14 @@ namespace NPC                                                                   
                         }
                     }
                 }
+            }
+
+            public static implicit operator Zombie(Citizen c)
+            {
+                Zombie z = c.gameObject.AddComponent<Zombie>();
+                z.npcStruct_N.age = c.npcStruct_N.age;
+                Destroy(c);
+                return z;
             }
         }
     }

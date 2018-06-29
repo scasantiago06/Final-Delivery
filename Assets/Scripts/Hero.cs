@@ -18,7 +18,9 @@ public class Hero : MonoBehaviour                                               
     WaitForSeconds textEnabled = new WaitForSeconds(2);                                                                                                 //Creo una variable de tipo "waitForSeconds" para utilizarla en la corrutina.
     bool citizenText = false;
     float distancesH_Z;
-    public GameObject clone;
+    GameObject clone;
+    GameObject ammunition;
+    GameObject health;
     //public GameObject SantoDios;
     /******************************************************************************************************************Funcion "OnCollisionEnter"******************************************************************************************************************/
     void OnCollisionEnter(Collision collision)                                                                                                          //Utilizo la función "OnCollisionEnter" para detectar cuando hay una colisión.
@@ -90,6 +92,7 @@ public class Hero : MonoBehaviour                                               
         gameObject.AddComponent<FPSMove>().speed = speedHero.speed_Hero;                                                                                    //Al personaje le agrego el componente "FPSMove" y le digo que la variable "speed" de dicha clase será igual a "speed_Hero" que esta en la clase "S_Hero".
         heroStruct_H.cam.AddComponent<FPSAim>();                                                                                                            //A la cámara le añado el componente "FPSAim".
         GunInstance();
+        AmmunitionAndHealth();
     }
 
     /******************************************************************************************************************Corrutina "RemoveDialogue"**********************************************************************************************************************/
@@ -98,6 +101,21 @@ public class Hero : MonoBehaviour                                               
         yield return textEnabled;                                                                                                                       //Hago que la corrutina espere dos segundos.
         citizenText = false;
         heroStruct_H.dialogue.enabled = false;                                                                                                          //Y luego que desactive el texto.
+    }
+
+    IEnumerator ActiveObjects()
+    {
+        yield return new WaitForSeconds(10f);
+        if (!ammunition.activeInHierarchy)
+        {
+            ammunition.SetActive(true);
+            ammunition.transform.position = new Vector3(Random.Range(0, 30), 0.5f, Random.Range(0, 30));
+        }
+        if (!health.activeInHierarchy)
+        {
+            health.SetActive(true);
+            ammunition.transform.position = new Vector3(Random.Range(0, 30), 0.5f, Random.Range(0, 30));
+        }
     }
 
     void GunInstance()
@@ -112,14 +130,43 @@ public class Hero : MonoBehaviour                                               
         heroStruct_H.countProjectiles = 15;
     }
 
+    void AmmunitionAndHealth()
+    {
+        ammunition = Instantiate(Resources.Load("Ammunition", typeof(GameObject)) as GameObject);
+        ammunition.transform.position = new Vector3(Random.Range(0, 30), 0.5f, Random.Range(0, 30));
+        health = Instantiate(Resources.Load("Health", typeof(GameObject)) as GameObject);
+        health.transform.position = new Vector3(Random.Range(0, 30), 0.5f, Random.Range(0, 30));
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Ammunition"))
+        {
+            heroStruct_H.countProjectiles = 15;
+            ammunition.SetActive(false);
+            StartCoroutine("ActiveObjects");
+        }
+        if (other.gameObject.CompareTag("Health"))
+        {
+            heroStruct_H.health.value += 15;
+            if(heroStruct_H.health.value > 100)
+            {
+                heroStruct_H.health.value = 100;
+            }
+            health.SetActive(false);
+            StartCoroutine("ActiveObjects");
+        }
+    }
+
     void GameOver()
     {
         if(heroStruct_H.health.value == 0)
         {
             heroStruct_H.cam.transform.SetParent(null);                                                 /*RRRRRRRROOOOOOOOOTTTTTTAAAAACCCCIIIIIOOOONNNNN*/
             ClassController.citizenList.Remove(gameObject);
-            heroStruct_H.cam.transform.position = new Vector3(0, 50, -150);
-            heroStruct_H.dialogue.text = "";
+            heroStruct_H.cam.transform.position = new Vector3(0, 50, 0);
+            heroStruct_H.cam.transform.rotation = new Quaternion(0, 0, 0, 0);
+            heroStruct_H.dialogue.text = " ";
             Destroy(gameObject);
         }
     }

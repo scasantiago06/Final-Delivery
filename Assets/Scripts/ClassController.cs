@@ -72,7 +72,7 @@ public class ClassController : MonoBehaviour
             }
         }
 
-            foreach (GameObject c in citizenList)
+        foreach (GameObject c in citizenList)
         {
             ci.text = "Number of citizens: " + (numberCitizens += 1);
         }
