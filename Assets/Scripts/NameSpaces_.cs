@@ -5,29 +5,43 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /******************************************************************************************************************************NameSpace NPC***************************************************************************************************************************/
-namespace NPC                                                                                                   //Creo el "nameSpace" para almacenar las dos clases.
+/// <summary>
+/// Creo el "namespace" para albergar dentro las clases de zombie y citizen.
+/// </summary>
+namespace NPC                                                                                                   
 {
     /***************************************************************************************************************************Clase "Npc"****************************************************************************************************************************/
-    public class Npc : MonoBehaviour                                                                            //Creamos la clase "Npc" que contiene todo lo que van a tener en común el zombie y el aldeano, como por ejemplo el movimineto.
+    /// <summary>
+    /// En esta clase se realiza lo que zombie y citizen tienen en común.
+    /// </summary>
+    public class Npc : MonoBehaviour                                                                            
     {
-        public ZombieStruct zombieStruct_N;                                                                     //Creo una variable del tipo de la estructura "ZombieStruct" y la llamo igual, simplemente que en minúsculas y luego del guión bajo, la letra de la clase a la que corresponde.
-        public CitizenStruct citizenStruct_N;                                                                   //Creo una variable de tipo de la estructura "CitizenStruct" para poder acceder a una copia de estructura.
-        public NpcStruct npcStruct_N;                                                                           //Creo una variable de tipo de la estructura "NpcStruct" para poder acceder a una copia de ella.
-        public WaitForSeconds timeBehaviourChange = new WaitForSeconds(3);                                             //Inicializo la variable "timeBehaviourChage" y va a ser igual a un tiempo de espera de 3 segundos.
-        
+        /// <summary>
+        /// Creo las variables de las estructuras más otra necesaria.
+        /// </summary>
+        public ZombieStruct zombieStruct_N;                                                                     
+        public CitizenStruct citizenStruct_N;                                                                   
+        public NpcStruct npcStruct_N;
+
+        public WaitForSeconds timeBehaviourChange = new WaitForSeconds(3);
+
         /**********************************************************************************************************************Función "Awake"*************************************************************************************************************************/
-        public void Awake()                                                                                     //Creo una función que se encarga de hacer lo que se debe hacer en la funcion "Start" de Unity, para luego llamar esta función en las otras clases desde su propio "Start" para no se sobrescriba la una a la otra.
+        /// <summary>
+        /// En esta función se condiciona la edad de cada uno para asignarle una 
+        /// velocidad dependiendo de la edad.
+        /// </summary>
+        public void Awake()                                                                                     
         {
-            npcStruct_N.age = Random.Range(15, 101);                                                            //Inicializo la variable "age" con un número aleatorio entre 15 y 101.
-            npcStruct_N.rotationVelocity = Random.Range(15, 100);                                               //Inicializo la variable "rotationVelocity" que está dentro de la estructura "npcStruct_N" y va a ser igual a un número entre 15 y 99 realmente.
+            npcStruct_N.age = Random.Range(15, 101);                                                            
+            npcStruct_N.rotationVelocity = Random.Range(15, 100);                                               
 
             if (npcStruct_N.age <= 15)                                                                         
             {
-                npcStruct_N.runSpeed = 10.0f;
+                npcStruct_N.runSpeed = 15.0f;
             }
             else if (npcStruct_N.age <= 30 && npcStruct_N.age > 15)
             {
-                npcStruct_N.runSpeed = 8.0f;
+                npcStruct_N.runSpeed = 10.0f;
             }
             else if (npcStruct_N.age <= 50 && npcStruct_N.age > 30)
             {
@@ -42,31 +56,35 @@ namespace NPC                                                                   
                 npcStruct_N.runSpeed = 5.0f;
             }
 
-            StartCoroutine("ChangeBehaviour");                                                                  //Iniciamos la corrutina "ChangeBehaviour".
+            StartCoroutine("ChangeBehaviour");                                                                  
         }
 
         /**********************************************************************************************************************Función "Movement"*********************************************************************************************************************************/
+        /// <summary>
+        /// Esta función se encarga de verificar el estado y según este hacer una acción 
+        /// u otra.
+        /// </summary>
         public void Movement()
         {
-            switch (npcStruct_N.npcBehaviour)                                                                   //Creamos un "switch" para comparar la variable "zombieBehaviour" que está dentro de la estructura.
+            switch (npcStruct_N.npcBehaviour)                                                                   
             {
-                case NpcBehaviour.Idle:                                                                         //En caso que el comportamiento sea "Idle":
-                    transform.position = transform.position;                                                    //La posición del este objeto será igual a la posición de este objeto, es decir, si se estaba moviendo ya no lo hará porque la posición de este será la misma en la que se encuentra.
+                case NpcBehaviour.Idle:                                                                         
+                    transform.position = transform.position;                                                    
                     goto case NpcBehaviour.Running;                                      
 
-                case NpcBehaviour.Moving:                                                                       //En caso que el comportamiento sea "Moving":
-                    transform.position += (transform.forward * npcStruct_N.runSpeed) * Time.deltaTime;          //La posición será igual a un movimiento hacia "forward" positivo, es decir, hacia el frente.
+                case NpcBehaviour.Moving:                                                                       
+                    transform.position += (transform.forward * npcStruct_N.runSpeed) * Time.deltaTime;          
                     goto case NpcBehaviour.Running;                                      
 
-                case NpcBehaviour.Rotating:                                                                     //En caso que el comportamiento sea "Rotating".
-                    switch (npcStruct_N.randomRotation)                                                         //Creamos otro "switch" para comparar la variabke "randomRotation" que está dentro de la estructura.
+                case NpcBehaviour.Rotating:                                                                     
+                    switch (npcStruct_N.randomRotation)                                                         
                     {
-                        case 0:                                                                                 //En caso que la variable sea igual a cero:
-                            transform.Rotate(0, npcStruct_N.rotationVelocity * Time.deltaTime, 0, 0);           //La rotación será igual a un movimiento positivo en "Y", es decir, hacia la derecha.
-                            break;                                                                              //Rompemos el "switch".
-                        case 1:                                                                                 //En caso que la variable sea igual a uno:
-                            transform.Rotate(0, -npcStruct_N.rotationVelocity * Time.deltaTime, 0, 0);          //La rotación será igual a un movimiento negativo en "Y", es decir, hacia la izquierda.
-                            break;                                                                              //Rompemos el "switch".
+                        case 0:                                                                                 
+                            transform.Rotate(0, npcStruct_N.rotationVelocity * Time.deltaTime, 0, 0);           
+                            break;                                                                              
+                        case 1:                                                                                 
+                            transform.Rotate(0, -npcStruct_N.rotationVelocity * Time.deltaTime, 0, 0);          
+                            break;                                                                              
                     }
                     goto case NpcBehaviour.Running;                                                             
 
@@ -77,11 +95,18 @@ namespace NPC                                                                   
         }
 
         /************************************************************************************************************Función Virtual"DistanceFunction"*****************************************************************************************************************/
+        /// <summary>
+        /// En esta función se verifican las distancias entre los zombis, ciudadanos y héroe para saber en que momento
+        /// se entra en el estado "Running".
+        /// </summary>
         public virtual void DistanceFunction()
         {
             foreach (GameObject cit in ClassController.citizenList)
             {
-                npcStruct_N.distances = Vector3.Distance(gameObject.transform.position, cit.transform.position);
+                if(cit != null)
+                { 
+                    npcStruct_N.distances = Vector3.Distance(gameObject.transform.position, cit.transform.position);
+                }
 
                 if (npcStruct_N.distances < 5 && npcStruct_N.distances > 1.5f)
                 {
@@ -95,21 +120,33 @@ namespace NPC                                                                   
         }
 
         /**************************************************************************************************************Corrutina "ChangeBehaviour"*********************************************************************************************************************/
+        /// <summary>
+        /// La corrutina se encarga de cambiar de, cada cierto tiempo,
+        /// llamar la función "ChooseBehaviour".
+        /// </summary>
+        /// <returns></returns>
         IEnumerator ChangeBehaviour()
         {
-            ChooseBehaviour();                                                                                  //Llamamos la función "ChooseBehaviour".
-            yield return timeBehaviourChange;                                                                   //Utilizamos la variable "timeBehaviourChange" para esperar cinco segundos.
-            StartCoroutine("ChangeBehaviour");                                                                  //Por último volvemos a iniciar la corrutina.
+            ChooseBehaviour();                                                                                  
+            yield return timeBehaviourChange;                                                                   
+            StartCoroutine("ChangeBehaviour");                                                                  
         }
 
         /***************************************************************************************************************Función "ChooseBehaviour"*************************************************************************************************************************/
+        /// <summary>
+        /// Esta función se encarga de escoger un estado al azar.
+        /// </summary>
         void ChooseBehaviour()
         {
-            npcStruct_N.randomRotation = Random.Range(0, 2);                                                    //Inicializamos la variable "randomRotation" y va a ser igual a un número aleatorio entre 0 y 1 realmente.
-            npcStruct_N.npcBehaviour = (NpcBehaviour)Random.Range(0, 3);                                        //Inicializamos la variable "zombieBehaviour" y va a ser igual a un comportamiento aleatorio. Mismo caso que cuando inicializamos la variable "bodyPart".
+            npcStruct_N.randomRotation = Random.Range(0, 2);                                                    
+            npcStruct_N.npcBehaviour = (NpcBehaviour)Random.Range(0, 3);                                        
         }
 
         /*****************************************************************************************************************Función "NpcMessage"*************************************************************************************************************************/
+        /// <summary>
+        /// Creo una función para retornar la estructura.
+        /// </summary>
+        /// <returns></returns>
         public NpcStruct NpcMessage()
         {
             return npcStruct_N;
@@ -117,10 +154,17 @@ namespace NPC                                                                   
     }
 
     /***********************************************************************************************************************NameSpace Enemy****************************************************************************************************************************/
-    namespace Enemy                                                                                             //Creo otro "nameSpace" para almacenar la clase "Zombie".
+    /// <summary>
+    /// Creo un "namespace" para albergar la clase zombie.
+    /// </summary>
+    namespace Enemy                                                                                             
     {
         /*****************************************************************************************************************************Clase "Zombie"*******************************************************************************************************************************/
-        public class Zombie : Npc                                                                               //Ahora entramos a la clase "Zombie" que hereda de la clase "Npc".
+        /// <summary>
+        /// Esta clase se encarga del comportamiento del zombie y se sella
+        /// para que no se pueda heredar de esta.
+        /// </summary>
+        public sealed class Zombie : Npc                                                                        
         {
             float distanceZ_H;
             GameObject hero;
@@ -128,18 +172,25 @@ namespace NPC                                                                   
             Vector3 BigZombie;
 
             /****************************************************************************************************************Función "Start"***************************************************************************************************************************/
+            /// <summary>
+            /// Inicializo las variables necesarias
+            /// </summary>
             void Start()
             {
                 BigZombie = new Vector3(1, 2, 1);
-                gameObject.name = "Zombie";                                                                     //Al objeto que tenga este script se le dará el nombre de "Zombie".
-                gameObject.tag = "Zombie";                                                                      //Al objeto que tenga este script se le dará el tag de "Zombie".
-                zombieStruct_N.randomColor = Random.Range(0, 3);                                                //Inicializo la variable "randomColor" que está dentro de la estructura y va a ser igual a un número aleatorio entre 0 y 2 realmente.
-                zombieStruct_N.bodyPart = (BodyPart)Random.Range(0, 5);                                         //Inicializo la variable "bodyPart" que esta dentro de la estructura y va a ser igual a una parte aleatoria de la enumeración "BodyPart", es decir, primero se obtiene un número aleatorio entre 0 y 4 realmente, y como la variable no es de un tipo de número, es decir, no puede almacenar números, por lo tanto ese número que obtengamos se transfoma en una posición de la enumeración con los paréntesis (BodyPart).
-                ChangeColor();                                                                                  //Llamamos la función "ChangeColor".
+                gameObject.name = "Zombie";                                                                     
+                gameObject.tag = "Zombie";                                                                      
+                zombieStruct_N.randomColor = Random.Range(0, 3);                                                
+                zombieStruct_N.bodyPart = (BodyPart)Random.Range(0, 5);                                         
+                ChangeColor();                                                                                  
                 hero = GameObject.FindGameObjectWithTag("Player");
             }
 
             /****************************************************************************************************************Función "Update"**************************************************************************************************************************/
+            /// <summary>
+            /// Llamo dos funciones que se necesitan estar verificando
+            /// constantemente.
+            /// </summary>
             void Update()
             {
                 Movement();
@@ -147,6 +198,10 @@ namespace NPC                                                                   
             }
 
             /*************************************************************************************************************Funcion "CheckDistance"**********************************************************************************************************************/
+            /// <summary>
+            /// Con esta función se verifica la distancia del zombie con el héroe para saber
+            /// si es suficiente y empezar a hacer daño.
+            /// </summary>
             void CheckDistance()
             {
                 if(hero != null)
@@ -161,6 +216,10 @@ namespace NPC                                                                   
             }
 
             /*****************************************************************************************************************Corrutina "Damage"***********************************************************************************************************************/
+            /// <summary>
+            /// En la corrutina se hace el daño al héroe dependiendo del tipo del zombie.
+            /// </summary>
+            /// <returns></returns>
             IEnumerator Damage()
             {
                 npcStruct_N.npcBehaviour = NpcBehaviour.Running;
@@ -177,36 +236,57 @@ namespace NPC                                                                   
             }
 
             /****************************************************************************************************************Funcion "ChangeColor"*********************************************************************************************************************/
+            /// <summary>
+            /// Esta función se encarga de cambiar el color del zombie de forma aleatoria.
+            /// </summary>
             public void ChangeColor()
             {
-                switch (zombieStruct_N.randomColor)                                                             //Creo un "switch" para comparar la variable "randomColor" que esta dentro de la estructura.
+                switch (zombieStruct_N.randomColor)                                                             
                 {
-                    case 0:                                                                                     //En caso que la variable sea igual a cero:
-                        gameObject.GetComponent<Renderer>().material.color = Color.cyan;                        //El objeto con este script tomará el color a "cyan".
-                        break;                                                                                  //Rompemos el "switch".
-                    case 1:                                                                                     //En caso que la variable sea igual a uno:
-                        gameObject.GetComponent<Renderer>().material.color = Color.green;                       //El objeto con este script tomará el color a "green".
-                        break;                                                                                  //Rompemos el "switch".
-                    case 2:                                                                                     //En caso que la variable sea igual a dos:
-                        gameObject.GetComponent<Renderer>().material.color = Color.magenta;                     //El objeto con este script tomará el color a "magenta".
-                        break;                                                                                  //Rompemos el "switch".
+                    case 0:                                                                                     
+                        gameObject.GetComponent<Renderer>().material.color = Color.cyan;                        
+                        break;                                                                                  
+                    case 1:                                                                                     
+                        gameObject.GetComponent<Renderer>().material.color = Color.green;                       
+                        break;                                                                                  
+                    case 2:                                                                                     
+                        gameObject.GetComponent<Renderer>().material.color = Color.magenta;                     
+                        break;                                                                                  
                 }
             }
 
             /**************************************************************************************************************Función "OnCollisionEnter"******************************************************************************************************************/
+            /// <summary>
+            /// Verifico si collisiona con algún ciudadano para convertirlo ó, si 
+            /// colisiona con un proyectil para en ese caso, este zombie ser destruido.
+            /// </summary>
+            /// <param name="collision"></param>
             void OnCollisionEnter(Collision collision)
             {
                 if (collision.gameObject.GetComponent<Citizen>())
                 {
                     Citizen c = collision.gameObject.GetComponent<Citizen>();
                     Zombie z = c;
-                    //print(z);
+                    print(z.name);
                     ClassController.zombieList.Add(collision.gameObject);
                     ClassController.citizenList.Remove(collision.gameObject);
                     ClassController.numberZombies += 1;
                     ClassController.numberCitizens -= 1;
                     ClassController.zo.text = "Number of Zombies: " + ClassController.numberZombies;
                     ClassController.ci.text = "Number of Citizens: " + ClassController.numberCitizens;
+
+                    if(ClassController.numberCitizens == 0)
+                    {
+                        Hero.heroStruct_H.cam.transform.SetParent(null);
+                        ClassController.citizenList.Remove(gameObject);
+                        Destroy(Hero.heroStruct_H.cam.GetComponent<FPSAim>());
+                        Hero.heroStruct_H.cam.transform.position = new Vector3(0, 90, 0);
+                        Quaternion rot = Quaternion.Euler(90, 0, 0);
+                        Hero.heroStruct_H.cam.transform.rotation = rot;
+                        Hero.heroStruct_H.dialogue.text = " ";
+                        Hero.heroStruct_H.finalText.text = "You Lost";
+                        Destroy(Hero.heroStruct_H.heroObject);
+                    }
                 }
 
                 if (collision.gameObject.CompareTag("Projectile"))
@@ -215,45 +295,83 @@ namespace NPC                                                                   
                     ClassController.numberZombies -= 1;
                     ClassController.zo.text = "Number of Zombies: " + ClassController.numberZombies;
                     Destroy(gameObject);
+
+                    if(ClassController.numberZombies == 0)
+                    {
+                        Hero.heroStruct_H.cam.transform.SetParent(null);
+                        ClassController.citizenList.Remove(gameObject);
+                        Destroy(Hero.heroStruct_H.cam.GetComponent<FPSAim>());
+                        Hero.heroStruct_H.cam.transform.position = new Vector3(0, 90, 0);
+                        Quaternion rot = Quaternion.Euler(90, 0, 0);
+                        Hero.heroStruct_H.cam.transform.rotation = rot;
+                        Hero.heroStruct_H.dialogue.text = " ";
+                        Hero.heroStruct_H.finalText.text = "You Won";
+                    }
                 }
             }
 
             /****************************************************************************************************************Función "ZombieMessage"*******************************************************************************************************************/
+            /// <summary>
+            /// Una función para retornar la estructura.
+            /// </summary>
+            /// <returns></returns>
             public ZombieStruct ZombieMessage()
             {
-                return zombieStruct_N;                                                                          //Retornamos la variable de la estructura.                                       
+                return zombieStruct_N;                                                                          
             }
         }
     }
 
     /****************************************************************************************************************************NameSpace Ally************************************************************************************************************************/
-    namespace Ally                                                                                              //Creo otro "nameSpace" para almacenar la clase "Citizen".
+    /// <summary>
+    /// Creo un namespace para albergar la clase Citizen
+    /// </summary>
+    namespace Ally                                                                                              
     {
         /************************************************************************************************************************Clase "Citizen"***********************************************************************************************************************/
-        public class Citizen : Npc                                                                              //Esto es una clase que hereda de "Npc".
+        /// <summary>
+        /// Esta clase se encarga del comportamiento del ciudadano y se sella
+        /// para que no se pueda heredar de esta.
+        /// </summary>
+        public sealed class Citizen : Npc                                                                       
         {
             float distanceC_Z;
+
             /********************************************************************************************************************Funcion "Start"***********************************************************************************************************************/
+            /// <summary>
+            /// Se le da nombre escogido de la enumeración y se le asigna un Tag.
+            /// </summary>
             void Start()
             {                                                                                   
-                citizenStruct_N.names = (Names)Random.Range(0, 20);                                             //Inicializo la variable "names" con uno de los nombres en la enumeración, que como vemos, es aleatorio entre 0 y 20.
-                gameObject.name = citizenStruct_N.names.ToString();                                             //El objeto que contenga este componente "Citizen" tendrá como nombre el elegido del enumerador de nombres.
-                gameObject.tag = "Citizen";                                                                     //Al "gameObject" que contenga este script se le dará el tag de "Citizen".
+                citizenStruct_N.names = (Names)Random.Range(0, 20);                                             
+                gameObject.name = citizenStruct_N.names.ToString();                                             
+                gameObject.tag = "Citizen";                                                                     
             }
 
             /*******************************************************************************************************************Función "Update"***********************************************************************************************************************/
+            /// <summary>
+            /// Se llama una función constantemente
+            /// </summary>
             void Update()
             {
-                Movement();                                                                                     //Llamo la función "Movement" que se encuentra en la clase "Npc".
+                Movement();                                                                                     
             }
 
             /**************************************************************************************************************Funcion "CitizenMessage"********************************************************************************************************************/
-            public CitizenStruct CitizenMessage()                                                               //Creo una función de tipo de la estructura "CitizenMessage" para retornar esta y que sea utilizada en otro script.
+            /// <summary>
+            /// Una función para retornar la estructura.
+            /// </summary>
+            /// <returns></returns>
+            public CitizenStruct CitizenMessage()                                                               
             {
-                return citizenStruct_N;                                                                         //Retorno la variable local de la estructura, es decir, la variable llamada "citizenStruct_C".
+                return citizenStruct_N;                                                                         
             }
 
             /*********************************************************************************************************Función Override"DistanceFunction"***************************************************************************************************************/
+            /// <summary>
+            /// Sobreescribimos la función de la clase "NPC" ya que el ciudadano
+            /// hace un par de cosas distintas.
+            /// </summary>
             public override void DistanceFunction()
             {
                 foreach (GameObject zom in ClassController.zombieList)
@@ -272,6 +390,10 @@ namespace NPC                                                                   
             }
 
             /*****************************************************************************************************************Implicit Operator************************************************************************************************************************/
+            /// <summary>
+            /// Esta función se encarga hacer el cast de estructuras
+            /// </summary>
+            /// <param name="c"></param>
             public static implicit operator Zombie(Citizen c)
             {
                 Zombie z = c.gameObject.AddComponent<Zombie>();

@@ -3,28 +3,37 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /***************************************************************************************************************Clase FPSMove*******************************************************************************************************************************************/
-public class FPSMove : MonoBehaviour                                                //Creo la clase para hacer mover el personaje.
+/// <summary>
+/// Esta clase hará que el heroe se pueda mover.
+/// </summary>
+public class FPSMove : MonoBehaviour                                            
 {
-    public float speed;                                                             //Creo una variable de tipo "float" que será la velocidad.
+    public float speed;
 
     /*********************************************************************************************************Función "Update"******************************************************************************************************************************************/
-    void Update()                                                                   //El "Update" se utiliza para comprobar la presión de botones.
+    /// <summary>
+    /// El "Update" verificará que tecla se presiona y dependiendo de esta, moverá
+    /// a un lado o al otro al objeto que tenga este script.
+    /// La velocudad será aplicada por la variable "float" llamada "speed", a la cual
+    /// se le da un valor en otra clase.
+    /// </summary>
+    void Update()                                                                   
     {
-        if (Input.GetKey(KeyCode.W))                                                //Si se presiona la tecla "W" pasa lo siguiente.
+        if (Input.GetKey(KeyCode.W))                                                
         {
-            transform.position += transform.forward * (speed * Time.deltaTime);     //Se le agrega velocidad al "transform" hacia el frente.
+            transform.position += transform.forward * (speed * Time.deltaTime);     
         }
-        if (Input.GetKey(KeyCode.S))                                                //Si se presiona la tecla "S" pasa lo siguiente.
+        if (Input.GetKey(KeyCode.S))                                                
         {
-            transform.position -= transform.forward * (speed * Time.deltaTime);     //Se le agrega velocidad al "transform" hacia el frente pero en negativo, es decir, hacia atrás.
+            transform.position -= transform.forward * (speed * Time.deltaTime);     
         }
-        if (Input.GetKey(KeyCode.A))                                                //Si se presiona la tecla "A" pasa lo siguiente.
+        if (Input.GetKey(KeyCode.A))                                                
         {
-            transform.position -= transform.right * (speed * Time.deltaTime);       //Se le agrega velocidad al "transform" hacia la derecha en negativo, es decir, hacia la izquierda.
+            transform.position -= transform.right * (speed * Time.deltaTime);       
         }
-        if (Input.GetKey(KeyCode.D))                                                //Si se presiona la tecla "D" pasa lo siguiente.
+        if (Input.GetKey(KeyCode.D))                                                
         {
-            transform.position += transform.right * (speed * Time.deltaTime);       //Se le agrega velocidad al "transform" hacia la derecha.
+            transform.position += transform.right * (speed * Time.deltaTime);       
         }
     }
 }

@@ -1,57 +1,101 @@
-﻿using System.Collections;                                               //UpWork / HackerRank
+﻿using System.Collections;                                               
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using NPC.Ally;                                                                                                                                         //Para utilizar la clase "Citizen" utilizo la directiva donde se encuentra esta.                         
-using NPC.Enemy;                                                                                                                                        //Para utilizar la clase "Zombie" utilizo la directiva donde se encuentra esta.
-using NPC;                                                                                                                                              //Para utilizar la clase "Npc" utilizo la directiva donde se encuentra esta.
-using UnityEditor;
+using NPC.Ally;                                                         
+using NPC.Enemy;                                                        
+using NPC;
 
 /****************************************************************************************************************************Clase Hero*****************************************************************************************************************************/
-public class Hero : MonoBehaviour                                                                                                                       //La clase del héroe.
+public class Hero : MonoBehaviour                                       
 {
-    public static HeroStruct heroStruct_H;                                                                                                              //Creo una variable de tipo "HeroStruct" que es la estructura del héroe.
-    ZombieStruct zombieStruct_H;                                                                                                                        //Creo una variable de tipo "ZombieStruct" que es la estructura del zombie.
-    CitizenStruct citizenStruct_H;                                                                                                                      //Creo una variable de tipo "CitizenStruct" que es la estructura del ciudadano.
-    NpcStruct npcStruct_H;                                                                                                                              //Creo una variable de tipo "NpcStruct" que es la estructura del npc.
+    /// <summary>
+    /// Creo las variables necesarias, incluyendo variables del tipo de 
+    /// las estructura, y una de ellas estática.
+    /// </summary>
+    public static HeroStruct heroStruct_H;                                                                                                              
+    ZombieStruct zombieStruct_H;                                                                                                                        
+    CitizenStruct citizenStruct_H;                                                                                                                      
+    NpcStruct npcStruct_H;
 
-    WaitForSeconds textEnabled = new WaitForSeconds(2);                                                                                                 //Creo una variable de tipo "waitForSeconds" para utilizarla en la corrutina.
-    bool citizenText = false;
-    float distancesH_Z;
     GameObject clone;
     GameObject ammunition;
     GameObject health;
-    //public GameObject SantoDios;
-    /******************************************************************************************************************Funcion "OnCollisionEnter"******************************************************************************************************************/
-    void OnCollisionEnter(Collision collision)                                                                                                          //Utilizo la función "OnCollisionEnter" para detectar cuando hay una colisión.
+
+    WaitForSeconds textEnabled = new WaitForSeconds(2);  
+    
+    bool citizenText = false;
+    float distancesH_Z;
+    int randomDialogue;
+
+    /************************************************************************************************************************Funcion "Awake"***************************************************************************************************************************/
+    /// <summary>
+    /// Busco objetos en la escena para guardarlos en sus respectivas variables.
+    /// </summary>
+    void Awake()
     {
-        if (collision.gameObject.GetComponent<Citizen>())                                                                                               //Verifico con el condicional si el objeto que tiene este script esta chocando con algún otro que tenga el componente de "Citizen".
-        {
-            citizenText = true;
-            citizenStruct_H = collision.gameObject.GetComponent<Citizen>().CitizenMessage();                                                            //En resumen, "citizenStruct_H" es igual a la función "CitizenMessage()" ubicada en la clase "Citizen" y, esta función retorna la estructura local de dicha clase, por lo tanto, "CitizenStruct_H" será igual a "CitizenStruct_C".
-            npcStruct_H = collision.gameObject.GetComponent<Npc>().NpcMessage();
-            StopCoroutine("RemoveDialogue");                                                                                                            //Detengo la corrutina, esto es para que siempre que colisione se asegure de, en caso de que este activada, la detenga para que no se acumule.
-            heroStruct_H.dialogue.enabled = true;                                                                                                       //Activo el texto para que se pueda hacer la siguiente línea.
-            heroStruct_H.dialogue.text = "CITIZEN: Hello, i am " + citizenStruct_H.names + " and i am " + npcStruct_H.age + " years old";               //Ahora el texto de la variable "dialogue" de la estructura cambiará a lo que aparece entre comillas más "CitizenStruct_H.bodyPart", es decir, "CitizenStruct_H" se acabó de sobrescribir por "CitizenStruct_Z" y luego accedimos a la variable "randomName" de la estructura, y lo mismo con "citizenStruct.age"
-            StartCoroutine("RemoveDialogue");                                                                                                           //Llamo la corrutina que desactivará el texto.
-        }
+        heroStruct_H.health = GameObject.FindGameObjectWithTag("Health").GetComponent<Slider>();
+        heroStruct_H.finalText = GameObject.FindGameObjectWithTag("Finish").GetComponent<Text>();
+        heroStruct_H.dialogue = GameObject.FindGameObjectWithTag("Dialogue").GetComponent<Text>();
+        heroStruct_H.cam = GameObject.FindGameObjectWithTag("MainCamera");
+        heroStruct_H.heroObject = gameObject;
+    }
+
+    /************************************************************************************************************************Funcion "Start"***************************************************************************************************************************/
+    /// <summary>
+    /// En esta función se hacen varias cosas, primero instancio una clase con constructor, luego
+    /// lleno una variable con la posición del héroe, le asigno un valor a la variable que maneja el
+    /// "Slider" de UI, le doy un Tag y un nombre al héroe, se le da color también, guardo el componente 
+    /// "Rigidbody" para congelar las rotaciones, entre otras cosas más.
+    /// </summary>
+    void Start()
+    {
+        S_Hero speedHero = new S_Hero();                                                                            
+        heroStruct_H.positionHero = gameObject.transform.position;              
+        heroStruct_H.health.value = 100;
+
+        gameObject.name = "Hero";                                                                                   
+        gameObject.tag = "Player";
+
+        gameObject.GetComponent<Renderer>().material.color = Color.black;
+
+        heroStruct_H.rb = GetComponent<Rigidbody>();                                          
+        heroStruct_H.rb.constraints = RigidbodyConstraints.FreezeRotation; 
+                                                 
+        heroStruct_H.cam.transform.position = new Vector3(heroStruct_H.positionHero.x, heroStruct_H.positionHero.y + 1.5f, heroStruct_H.positionHero.z - 2);  
+        heroStruct_H.cam.transform.SetParent(gameObject.transform);    
+        
+        gameObject.AddComponent<FPSMove>().speed = speedHero.speed_Hero;                                                                                    
+        heroStruct_H.cam.AddComponent<FPSAim>();          
+        
+        GunInstance();
+        AmmunitionAndHealth();
     }
 
     /***********************************************************************************************************************Funcion "Update"***********************************************************************************************************************/
+    /// <summary>
+    /// Constantemente se va verificando la distancia entre el héroe y cada uno de los zombies
+    /// para así, si la distancia en un número en específico mostrar un mensaje en la UI.
+    /// Por otro lado también se verifica cada que se presiona clic, para así instanciar un objeto que
+    /// sirve como proyectil para destruir zombies.
+    /// </summary>
     void Update()
     {
         foreach (GameObject zo in ClassController.zombieList)
         {
-            distancesH_Z = Vector3.Distance(gameObject.transform.position, zo.transform.position);
+            if (zo != null)
+            {
+                distancesH_Z = Vector3.Distance(gameObject.transform.position, zo.transform.position);
+            }
 
             if (citizenText == false)
-            { 
+            {
                 if (distancesH_Z <= 5)
                 {
                     StopCoroutine("RemoveDialogue");
                     zombieStruct_H = zo.GetComponent<Zombie>().ZombieMessage();
                     heroStruct_H.dialogue.enabled = true;
-                    heroStruct_H.dialogue.text = "ZOMBIE: Waaaarrrr i want to eat " + zombieStruct_H.bodyPart;                                                  //Ahora el texto de la variable "dialogue" de la estructura cambiará a lo que aparece entre comillas más "zombieStruct_H.bodyPart", es decir, "zombieStruct_H" se acabó de sobrescribir por "zombieStruct_Z" y luego accedimos a la variable "bodyPart" de la estructura.
+                    heroStruct_H.dialogue.text = "ZOMBIE: Waaaarrrr i want to eat " + zombieStruct_H.bodyPart;
                     StartCoroutine("RemoveDialogue");
                 }
             }
@@ -68,47 +112,90 @@ public class Hero : MonoBehaviour                                               
         GameOver();
     }
 
-    /************************************************************************************************************************Funcion "Awake"***************************************************************************************************************************/
-    void Awake()
+    /******************************************************************************************************************Funcion "OnCollisionEnter"******************************************************************************************************************/
+    /// <summary>
+    /// Se verifica cuando el héroe colisiona contra un ciudadano para mostrar
+    /// en la UI un mensaje que depende de una variable aleatoria.
+    /// </summary>
+    /// <param name="collision"></param>
+    void OnCollisionEnter(Collision collision)
     {
-        heroStruct_H.health = GameObject.FindGameObjectWithTag("Health").GetComponent<Slider>();
+        if (collision.gameObject.GetComponent<Citizen>())
+        {
+            citizenText = true;
+            citizenStruct_H = collision.gameObject.GetComponent<Citizen>().CitizenMessage();
+            npcStruct_H = collision.gameObject.GetComponent<Npc>().NpcMessage();
+
+            StopCoroutine("RemoveDialogue");
+
+            heroStruct_H.dialogue.enabled = true;
+            randomDialogue = Random.Range(0, 3);
+
+            if (randomDialogue == 0)
+            {
+                heroStruct_H.dialogue.text = "CITIZEN: Hello, i am " + citizenStruct_H.names + " and i am " + npcStruct_H.age + " years old";
+                StartCoroutine("RemoveDialogue");
+            }
+            else if (randomDialogue == 1)
+            {
+                heroStruct_H.dialogue.text = "You can find ammunition around the map";
+                StartCoroutine("RemoveDialogue");
+            }
+            else if (randomDialogue == 2)
+            {
+                heroStruct_H.dialogue.text = "You can heal yourself with a green capsule, look for it!";
+                StartCoroutine("RemoveDialogue");
+            }
+        }
     }
 
-    /************************************************************************************************************************Funcion "Start"***************************************************************************************************************************/
-    void Start()
+    /*******************************************************************************************************************Función "OnTriggerEnter"***********************************************************************************************************************/
+    /// <summary>
+    /// Verifico si los coliders de la municion y de la vida chocan con el heroe,
+    /// para desactivarlos y empezar la corrutina.
+    /// </summary>
+    /// <param name="other"></param>
+    void OnTriggerEnter(Collider other)
     {
-        S_Hero speedHero = new S_Hero();                                                                                                                    //Instancio la clase "S_Hero".
-        heroStruct_H.positionHero = gameObject.transform.position;                                                                                          //Accedo a la estructura "heroStruct" y luego a la variable "positionHero" y digo que será igual a la posicion del "gameObject" que contiene este script.
-        heroStruct_H.dialogue = GameObject.FindGameObjectWithTag("Dialogue").GetComponent<Text>();                                                          //A la variable de tipo texto "dialogue" que está dentro de la estructura le asigno el componente "text" del "GameObject" que tenga el tag "Dialogue".
-        heroStruct_H.health.value = 100;
-
-        gameObject.name = "Hero";                                                                                                                           //Al objeto que contiene este script le doy el nombre de "Hero" para que aparezca en la jerarquía con ese nombre.
-        gameObject.tag = "Player";                                                                                                                          //Al objeto que contiene este script le doy el tag de "Hero".
-
-        heroStruct_H.rb = GetComponent<Rigidbody>();                                                                                                        //A la variable "rb" de la estructura le doy el componente "RigidBoy".
-        gameObject.GetComponent<Renderer>().material.color = Color.black;                                                                                   //Le doy un color al personaje, un simple cambio visual.
-        heroStruct_H.rb.constraints = RigidbodyConstraints.FreezeRotation;                                                                                  //A la variable "rb" de la estructura le digo que acceda a los "Constraints" y ponga verdadero todo el "FreezeRotation" en el inspector.
-        heroStruct_H.cam = GameObject.FindGameObjectWithTag("MainCamera");                                                                                  //A la variable "cam" de la estructura almaceno el "gameObject" que tenga el tag de "MainCamera", es decir que se guardará la cámara principal de la escena.
-        heroStruct_H.cam.transform.position = new Vector3(heroStruct_H.positionHero.x, heroStruct_H.positionHero.y + 1.5f, heroStruct_H.positionHero.z - 2);   //Ahora a la variable "cam" le doy una posición en la escena, la cual va a ser igual que a la del personaje o "Hero" pero se le suma 1 a "y" para que este un poco más alta y simule la cabeza.
-        heroStruct_H.cam.transform.SetParent(gameObject.transform);                                                                                         //Ahora a la variable "cam" la emparento al objeto que tenga este script, es decir al "Hero", para que a donde se mueva el objeto, también se mueva la cámara.
-        gameObject.AddComponent<FPSMove>().speed = speedHero.speed_Hero;                                                                                    //Al personaje le agrego el componente "FPSMove" y le digo que la variable "speed" de dicha clase será igual a "speed_Hero" que esta en la clase "S_Hero".
-        heroStruct_H.cam.AddComponent<FPSAim>();                                                                                                            //A la cámara le añado el componente "FPSAim".
-        GunInstance();
-        AmmunitionAndHealth();
+        if (other.gameObject.CompareTag("Ammunition"))
+        {
+            heroStruct_H.countProjectiles = 10;
+            ammunition.SetActive(false);
+            StartCoroutine("ActiveObjects");
+        }
+        if (other.gameObject.CompareTag("Health"))
+        {
+            heroStruct_H.health.value += 15;
+            if (heroStruct_H.health.value > 100)
+            {
+                heroStruct_H.health.value = 100;
+            }
+            health.SetActive(false);
+            StartCoroutine("ActiveObjects");
+        }
     }
 
     /******************************************************************************************************************Corrutina "RemoveDialogue"**********************************************************************************************************************/
-    IEnumerator RemoveDialogue()                                                                                                                        //Creo la corrutina que controla el texto del diálogo para desactivar.
+    /// <summary>
+    /// Esta corrutina se encarga de desactivar el texto en un determinado tiempo.
+    /// </summary>
+    /// <returns></returns>
+    IEnumerator RemoveDialogue()                                                                                                                        
     {
-        yield return textEnabled;                                                                                                                       //Hago que la corrutina espere dos segundos.
+        yield return textEnabled;                                                                                                                       
         citizenText = false;
-        heroStruct_H.dialogue.enabled = false;                                                                                                          //Y luego que desactive el texto.
+        heroStruct_H.dialogue.enabled = false;                                                                                                          
     }
 
     /*******************************************************************************************************************Corrutina "ActiveObjects"**********************************************************************************************************************/
+    /// <summary>
+    /// Esta corrutina se encarga de volver a activar los objetos del escenario y 
+    /// reubicarlos aleatoriamente, todo esto si los objetos estan desactivados.
+    /// </summary>
+    /// <returns></returns>
     IEnumerator ActiveObjects()
     {
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(15f);
         if (!ammunition.activeInHierarchy)
         {
             ammunition.SetActive(true);
@@ -122,6 +209,10 @@ public class Hero : MonoBehaviour                                               
     }
 
     /*********************************************************************************************************************Función "GunInstance"************************************************************************************************************************/
+    /// <summary>
+    /// Esta función hace lo necesario para el arma, la instancia, la ubica, la escala
+    /// etc.
+    /// </summary>
     void GunInstance()
     {
         heroStruct_H.gun = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -135,6 +226,9 @@ public class Hero : MonoBehaviour                                               
     }
 
     /*****************************************************************************************************************Función "AmmunitionAndHealth"********************************************************************************************************************/
+    /// <summary>
+    /// En esta función instancio los objetos del mapa y los reubico.
+    /// </summary>
     void AmmunitionAndHealth()
     {
         ammunition = Instantiate(Resources.Load("Ammunition", typeof(GameObject)) as GameObject);
@@ -143,28 +237,12 @@ public class Hero : MonoBehaviour                                               
         health.transform.position = new Vector3(Random.Range(0, 30), 0.5f, Random.Range(0, 30));
     }
 
-    /*******************************************************************************************************************Función "OnTriggerEnter"***********************************************************************************************************************/
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("Ammunition"))
-        {
-            heroStruct_H.countProjectiles = 15;
-            ammunition.SetActive(false);
-            StartCoroutine("ActiveObjects");
-        }
-        if (other.gameObject.CompareTag("Health"))
-        {
-            heroStruct_H.health.value += 15;
-            if(heroStruct_H.health.value > 100)
-            {
-                heroStruct_H.health.value = 100;
-            }
-            health.SetActive(false);
-            StartCoroutine("ActiveObjects");
-        }
-    }
-
     /**********************************************************************************************************************Función "GameOver"**************************************************************************************************************************/
+    /// <summary>
+    /// Esta función es para cuando el héroe pierde por slider de vida.
+    /// La camara se desemparenta, el heroe se remueve, se reubica la cámara
+    /// entre otras cosas.
+    /// </summary>
     void GameOver()
     {
         if(heroStruct_H.health.value == 0)
@@ -176,19 +254,24 @@ public class Hero : MonoBehaviour                                               
             Quaternion rot = Quaternion.Euler(90, 0, 0);
             heroStruct_H.cam.transform.rotation = rot;
             heroStruct_H.dialogue.text = " ";
+            heroStruct_H.finalText.text = "You Lost";
             Destroy(gameObject);
         }
     }
 }
 
 /****************************************************************************************************************************Clase "S_Hero"****************************************************************************************************************************/
-public class S_Hero                                                                                                                                     //Creo una clase que no hereda de "Monobehaviour".                                                                                                                             
+/// <summary>
+/// Creo una clase con su constructor para crear e inicializar una
+/// variable "ReadOnly".
+/// </summary>
+public class S_Hero                                                                                                                                     
 {
-    public readonly float speed_Hero;                                                                                                                   //Creo una variable de tipo "float" y "readOnly".
+    public readonly float speed_Hero;                                                                                                                   
 
     /*********************************************************************************************************************Contructor "S_Hero"**************************************************************************************************************************/
-    public S_Hero()                                                                                                                                     //Creo un constructor para poder cambiar la variable "speed_Hero".
+    public S_Hero()                                                                                                                                     
     {
-        speed_Hero = Random.Range(5.0f, 10.0f);                                                                                                         //Dentro del constructor cambio la variable "speed_Hero".
+        speed_Hero = Random.Range(5.0f, 10.0f);                                                                                                         
     }
 }
